@@ -1,0 +1,39 @@
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  stage: build
+  script:
+    - echo "Starting build process..."
+    - docker build -t devops_finalterm_report .
+    - echo "Build completed."
+
+test:
+  stage: test
+  script:
+    - echo "Running tests..."
+    - docker run --rm devops_finalterm_report bash -c "npm install && npm test"
+    - echo "Tests completed."
+
+deploy_staging:
+  stage: deploy
+  script:
+    - echo "Deploying to staging environment..."
+    - docker-compose -f docker-compose.staging.yml up -d
+    - echo "Staging deployment completed."
+  environment:
+    name: staging
+
+deploy_production:
+  stage: deploy
+  script:
+    - echo "Deploying to production environment..."
+    - docker-compose -f docker-compose.prod.yml up -d
+    - echo "Production deployment completed."
+  environment:
+    name: production
+    url: http://your-production-url.com
+  only:
+    - main
